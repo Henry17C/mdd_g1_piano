@@ -116,6 +116,8 @@ while cap.isOpened():
 
             # Dibujar los puntos de la mano
             mp_draw.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+    else:
+        tecla_presionada = None  # Resetear si no se detectan manos
 
     # Mostrar la ventana
     cv2.imshow("Piano Virtual", frame)
