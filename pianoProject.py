@@ -60,6 +60,8 @@ teclas_negras = {
 tecla_anterior = None  # Para evitar que suene muchas veces una misma tecla
 tecla_presionada_izq = None  # Inicializar tecla_presionada para la mano izquierda
 tecla_presionada_der = None  # Inicializar tecla_presionada para la mano derecha
+tecla_anterior_izq = None  # Para evitar que suene muchas veces una misma tecla para la mano izquierda
+tecla_anterior_der = None  # Para evitar que suene muchas veces una misma tecla para la mano derecha
 
 while cap.isOpened():
     ret, frame = cap.read()
@@ -120,23 +122,28 @@ while cap.isOpened():
                 for nota, (x1, y1, x2, y2) in {**teclas_blancas, **teclas_negras}.items():
                     if x1 < x < x2 and y1 < y < y2:
                         tecla_presionada_izq = nota
-                if tecla_presionada_izq and tecla_presionada_izq != tecla_anterior:
+                if tecla_presionada_izq and tecla_presionada_izq != tecla_anterior_izq:
                     notas[tecla_presionada_izq].play()
-                    tecla_anterior = tecla_presionada_izq
+                    tecla_anterior_izq = tecla_presionada_izq
             else:  # Mano derecha
                 tecla_presionada_der = None
                 for nota, (x1, y1, x2, y2) in {**teclas_blancas, **teclas_negras}.items():
                     if x1 < x < x2 and y1 < y < y2:
                         tecla_presionada_der = nota
-                if tecla_presionada_der and tecla_presionada_der != tecla_anterior:
+                if tecla_presionada_der and tecla_presionada_der != tecla_anterior_der:
                     notas[tecla_presionada_der].play()
-                    tecla_anterior = tecla_presionada_der
+                    tecla_anterior_der = tecla_presionada_der
 
             # Dibujar los puntos de la mano
             mp_draw.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
     else:
         tecla_presionada_izq = None  # Resetear si no se detectan manos
         tecla_presionada_der = None  # Resetear si no se detectan manos
+
+    # Resetear tecla_anterior si ninguna tecla está siendo presionada
+    if tecla_presionada_izq is None and tecla_presionada_der is None:
+        tecla_anterior_izq = None
+        tecla_anterior_der = None
 
     # Mostrar la ventana
     cv2.imshow("Piano Virtual", frame)
