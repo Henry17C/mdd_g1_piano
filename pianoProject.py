@@ -39,22 +39,22 @@ cap = cv2.VideoCapture(0)
 
 # Definir posiciones de teclas en la imagen (ajusta según tu imagen)
 teclas_blancas = {
-    "Do":  (0, 300, 100, 480),
-    "Re":  (100, 300, 200, 480),
-    "Mi":  (200, 300, 300, 480),
-    "Fa":  (300, 300, 400, 480),
-    "Sol": (400, 300, 500, 480),
-    "La":  (500, 300, 600, 480),
-    "Si":  (600, 300, 700, 480),
-    "Do2": (700, 300, 800, 480),
+    "Do":  (0, 250, 100, 470),
+    "Re":  (100, 250, 200, 470),
+    "Mi":  (200, 250, 300, 470),
+    "Fa":  (300, 250, 400, 470),
+    "Sol": (400, 250, 500, 470),
+    "La":  (500, 250, 600, 470),
+    "Si":  (600, 250, 700, 470),
+    "Do2": (700, 250, 800, 470),
 }
 
 teclas_negras = {
-    "Do#": (75, 300, 125, 400),
-    "Re#": (175, 300, 225, 400),
-    "Fa#": (375, 300, 425, 400),
-    "Sol#": (475, 300, 525, 400),
-    "La#": (575, 300, 625, 400),
+    "Do#": (75, 250, 125, 350),
+    "Re#": (175, 250, 225, 350),
+    "Fa#": (375, 250, 425, 350),
+    "Sol#": (475, 250, 525, 350),
+    "La#": (575, 250, 625, 350),
 }
 
 tecla_anterior = None  # Para evitar que suene muchas veces una misma tecla
@@ -76,19 +76,31 @@ while cap.isOpened():
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     result = hands.process(rgb_frame)
 
-    # Dibujar las teclas blancas del piano
+    # Dibujar las teclas blancas del piano con sombra y bordes curvados
     for nota, (x1, y1, x2, y2) in teclas_blancas.items():
+        shadow_color = (192, 192, 192)  # Gris claro para la sombra
+        border_color = (169, 169, 169)  # Plomo para el borde inferior
         color = (255, 255, 255)  # Blanco
         if tecla_presionada == nota:
             color = (169, 169, 169)  # Plomo
+            shadow_color = (105, 105, 105)  # Gris oscuro para la sombra cuando se presiona
+        # Dibujar sombra
+        cv2.rectangle(frame, (x1 + 5, y1 + 5), (x2 + 5, y2 + 5), shadow_color, -1)
+        # Dibujar tecla con bordes curvados
         cv2.rectangle(frame, (x1, y1), (x2, y2), color, -1)  # Relleno
+        cv2.rectangle(frame, (x1, y2 - 10), (x2, y2), border_color, -1)  # Borde inferior curvado
         cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 0), 2)  # Borde negro
 
-    # Dibujar las teclas negras del piano
+    # Dibujar las teclas negras del piano con sombra ajustada
     for nota, (x1, y1, x2, y2) in teclas_negras.items():
+        shadow_color = (64, 64, 64)  # Gris oscuro para la sombra
         color = (0, 0, 0)  # Negro
         if tecla_presionada == nota:
             color = (105, 105, 105)  # Gris oscuro
+            shadow_color = (32, 32, 32)  # Más oscuro para la sombra cuando se presiona
+        # Dibujar sombra desde el inicio del piano
+        cv2.rectangle(frame, (x1 + 5, 250), (x2 + 5, y2 + 5), shadow_color, -1)
+        # Dibujar tecla
         cv2.rectangle(frame, (x1, y1), (x2, y2), color, -1)  # Relleno
         cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 0), 2)  # Borde negro
 
