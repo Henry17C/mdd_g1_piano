@@ -15,6 +15,11 @@ notas = {
     "La": pygame.mixer.Sound("la.mp3"),
     "Si": pygame.mixer.Sound("si.mp3"),
     "Do2": pygame.mixer.Sound("do2.mp3"),
+    "Do#": pygame.mixer.Sound("re.mp3"),
+    "Re#": pygame.mixer.Sound("re.mp3"),
+    "Fa#": pygame.mixer.Sound("re.mp3"),
+    "Sol#": pygame.mixer.Sound("re.mp3"),
+    "La#": pygame.mixer.Sound("re.mp3"),
 }
 
 # Cargar la imagen del piano
@@ -33,20 +38,27 @@ mp_draw = mp.solutions.drawing_utils
 cap = cv2.VideoCapture(0)
 
 # Definir posiciones de teclas en la imagen (ajusta según tu imagen)
-teclas = {
-    "Do":  (0, 200, 100, 400),
-    "Re":  (100, 200, 200, 400),
-    "Mi":  (200, 200, 300, 400),
-    "Fa":  (300, 200, 400, 400),
-    "Sol": (400, 200, 500, 400),
-    "La":  (500, 200, 600, 400),
-    "Si":  (600, 200, 700, 400),
-    "Do2": (700, 200, 800, 400),
+teclas_blancas = {
+    "Do":  (0, 300, 100, 480),
+    "Re":  (100, 300, 200, 480),
+    "Mi":  (200, 300, 300, 480),
+    "Fa":  (300, 300, 400, 480),
+    "Sol": (400, 300, 500, 480),
+    "La":  (500, 300, 600, 480),
+    "Si":  (600, 300, 700, 480),
+    "Do2": (700, 300, 800, 480),
 }
 
-
+teclas_negras = {
+    "Do#": (75, 300, 125, 400),
+    "Re#": (175, 300, 225, 400),
+    "Fa#": (375, 300, 425, 400),
+    "Sol#": (475, 300, 525, 400),
+    "La#": (575, 300, 625, 400),
+}
 
 tecla_anterior = None  # Para evitar que suene muchas veces una misma tecla
+tecla_presionada = None  # Inicializar tecla_presionada
 
 while cap.isOpened():
     ret, frame = cap.read()
@@ -64,8 +76,21 @@ while cap.isOpened():
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     result = hands.process(rgb_frame)
 
-    # Dibujar la imagen del piano en la parte inferior
-    frame[280:280+piano_height, 0:piano_width] = piano_img
+    # Dibujar las teclas blancas del piano
+    for nota, (x1, y1, x2, y2) in teclas_blancas.items():
+        color = (255, 255, 255)  # Blanco
+        if tecla_presionada == nota:
+            color = (169, 169, 169)  # Plomo
+        cv2.rectangle(frame, (x1, y1), (x2, y2), color, -1)  # Relleno
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 0), 2)  # Borde negro
+
+    # Dibujar las teclas negras del piano
+    for nota, (x1, y1, x2, y2) in teclas_negras.items():
+        color = (0, 0, 0)  # Negro
+        if tecla_presionada == nota:
+            color = (105, 105, 105)  # Gris oscuro
+        cv2.rectangle(frame, (x1, y1), (x2, y2), color, -1)  # Relleno
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 0), 2)  # Borde negro
 
     # Si se detectan manos
     if result.multi_hand_landmarks:
@@ -78,10 +103,9 @@ while cap.isOpened():
 
             # Verificar si el dedo toca alguna tecla
             tecla_presionada = None
-            for nota, (x1, y1, x2, y2) in teclas.items():
+            for nota, (x1, y1, x2, y2) in {**teclas_blancas, **teclas_negras}.items():
                 if x1 < x < x2 and y1 < y < y2:
                     tecla_presionada = nota
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)  # Resaltar tecla
 
             # Si se detecta una nueva tecla presionada, reproducir sonido
             if tecla_presionada and tecla_presionada != tecla_anterior:
@@ -96,8 +120,9 @@ while cap.isOpened():
     # Mostrar la ventana
     cv2.imshow("Piano Virtual", frame)
 
-    # Salir con la tecla 'q'
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    # Salir con la tecla 'q' o la tecla Escape
+    key = cv2.waitKey(1) & 0xFF
+    if key == ord('q') or key == 27:  # 27 es el código ASCII para la tecla Escape
         break
 
 # Liberar recursos
