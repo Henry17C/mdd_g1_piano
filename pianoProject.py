@@ -58,7 +58,8 @@ teclas_negras = {
 }
 
 tecla_anterior = None  # Para evitar que suene muchas veces una misma tecla
-tecla_presionada = None  # Inicializar tecla_presionada
+tecla_presionada_izq = None  # Inicializar tecla_presionada para la mano izquierda
+tecla_presionada_der = None  # Inicializar tecla_presionada para la mano derecha
 
 while cap.isOpened():
     ret, frame = cap.read()
@@ -81,7 +82,7 @@ while cap.isOpened():
         shadow_color = (192, 192, 192)  # Gris claro para la sombra
         border_color = (169, 169, 169)  # Plomo para el borde inferior
         color = (255, 255, 255)  # Blanco
-        if tecla_presionada == nota:
+        if tecla_presionada_izq == nota or tecla_presionada_der == nota:
             color = (169, 169, 169)  # Plomo
             shadow_color = (105, 105, 105)  # Gris oscuro para la sombra cuando se presiona
         # Dibujar sombra
@@ -95,7 +96,7 @@ while cap.isOpened():
     for nota, (x1, y1, x2, y2) in teclas_negras.items():
         shadow_color = (64, 64, 64)  # Gris oscuro para la sombra
         color = (0, 0, 0)  # Negro
-        if tecla_presionada == nota:
+        if tecla_presionada_izq == nota or tecla_presionada_der == nota:
             color = (105, 105, 105)  # Gris oscuro
             shadow_color = (32, 32, 32)  # Más oscuro para la sombra cuando se presiona
         # Dibujar sombra desde el inicio del piano
@@ -114,22 +115,28 @@ while cap.isOpened():
             cv2.circle(frame, (x, y), 10, (0, 255, 0), -1)
 
             # Verificar si el dedo toca alguna tecla
-            tecla_presionada = None
-            for nota, (x1, y1, x2, y2) in {**teclas_blancas, **teclas_negras}.items():
-                if x1 < x < x2 and y1 < y < y2:
-                    tecla_presionada = nota
-
-            # Si se detecta una nueva tecla presionada, reproducir sonido
-            if tecla_presionada and tecla_presionada != tecla_anterior:
-                notas[tecla_presionada].play()
-                tecla_anterior = tecla_presionada
-            elif tecla_presionada is None:
-                tecla_anterior = None  # Resetear si no hay teclas presionadas
+            if hand_landmarks.landmark[8].x < 0.5:  # Mano izquierda
+                tecla_presionada_izq = None
+                for nota, (x1, y1, x2, y2) in {**teclas_blancas, **teclas_negras}.items():
+                    if x1 < x < x2 and y1 < y < y2:
+                        tecla_presionada_izq = nota
+                if tecla_presionada_izq and tecla_presionada_izq != tecla_anterior:
+                    notas[tecla_presionada_izq].play()
+                    tecla_anterior = tecla_presionada_izq
+            else:  # Mano derecha
+                tecla_presionada_der = None
+                for nota, (x1, y1, x2, y2) in {**teclas_blancas, **teclas_negras}.items():
+                    if x1 < x < x2 and y1 < y < y2:
+                        tecla_presionada_der = nota
+                if tecla_presionada_der and tecla_presionada_der != tecla_anterior:
+                    notas[tecla_presionada_der].play()
+                    tecla_anterior = tecla_presionada_der
 
             # Dibujar los puntos de la mano
             mp_draw.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
     else:
-        tecla_presionada = None  # Resetear si no se detectan manos
+        tecla_presionada_izq = None  # Resetear si no se detectan manos
+        tecla_presionada_der = None  # Resetear si no se detectan manos
 
     # Mostrar la ventana
     cv2.imshow("Piano Virtual", frame)
