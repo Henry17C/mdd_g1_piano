@@ -36,6 +36,13 @@ mp_draw = mp.solutions.drawing_utils
 
 # Iniciar captura de video
 cap = cv2.VideoCapture(0)
+cv2.namedWindow("Piano Virtual", cv2.WINDOW_NORMAL)
+cv2.resizeWindow("Piano Virtual", 1280, 720)  # Ajustar el tamaño de la ventana
+
+# Centrar la ventana en la pantalla
+screen_width = cv2.getWindowImageRect("Piano Virtual")[2]
+screen_height = cv2.getWindowImageRect("Piano Virtual")[3]
+cv2.moveWindow("Piano Virtual", (screen_width - 1280) // 2, (screen_height - 720) // 2)
 
 # Definir posiciones de teclas en la imagen (ajusta según tu imagen)
 teclas_blancas = {
@@ -145,12 +152,12 @@ while cap.isOpened():
         tecla_anterior_izq = None
         tecla_anterior_der = None
 
-    # Mostrar la ventana
+    # Mostrar la ventana en tamaño ajustado
     cv2.imshow("Piano Virtual", frame)
 
-    # Salir con la tecla 'q' o la tecla Escape
+    # Salir con la tecla 'q', la tecla Escape o al cerrar la ventana
     key = cv2.waitKey(1) & 0xFF
-    if key == ord('q') or key == 27:  # 27 es el código ASCII para la tecla Escape
+    if key == ord('q') or key == 27 or cv2.getWindowProperty("Piano Virtual", cv2.WND_PROP_VISIBLE) < 1:
         break
 
 # Liberar recursos
