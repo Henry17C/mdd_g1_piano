@@ -7,45 +7,53 @@ pygame.init()
 
 # Cargar sonidos de las notas (asegúrate de tener estos archivos en la misma carpeta)
 notas = {
-    "Do": pygame.mixer.Sound("do.mp3"),
-    "Re": pygame.mixer.Sound("re.mp3"),
-    "Mi": pygame.mixer.Sound("mi.mp3"),
-    "Fa": pygame.mixer.Sound("fa.mp3"),
-    "Sol": pygame.mixer.Sound("sol.mp3"),
-    "La": pygame.mixer.Sound("la.mp3"),
-    "Si": pygame.mixer.Sound("si.mp3"),
-    "Do2": pygame.mixer.Sound("do2.mp3"),
-    "Do#": pygame.mixer.Sound("re.mp3"),
-    "Re#": pygame.mixer.Sound("re.mp3"),
-    "Fa#": pygame.mixer.Sound("re.mp3"),
-    "Sol#": pygame.mixer.Sound("re.mp3"),
-    "La#": pygame.mixer.Sound("re.mp3"),
-    "Re2": pygame.mixer.Sound("re.mp3"),
-    "Mi2": pygame.mixer.Sound("mi.mp3"),
-    "Fa2": pygame.mixer.Sound("fa.mp3"),
-    "Sol2": pygame.mixer.Sound("sol.mp3"),
-    "La2": pygame.mixer.Sound("la.mp3"),
-    "Si2": pygame.mixer.Sound("si.mp3"),
-    "Do3": pygame.mixer.Sound("do2.mp3"),
-    "Do#2": pygame.mixer.Sound("re.mp3"),
-    "Re#2": pygame.mixer.Sound("re.mp3"),
-    "Fa#2": pygame.mixer.Sound("re.mp3"),
-    "Sol#2": pygame.mixer.Sound("re.mp3"),
-    "La#2": pygame.mixer.Sound("re.mp3"),
-    "Re3": pygame.mixer.Sound("re.mp3"),
-    "Mi3": pygame.mixer.Sound("mi.mp3"),
-    "Fa3": pygame.mixer.Sound("fa.mp3"),
-    "Sol3": pygame.mixer.Sound("sol.mp3"),
-    "La3": pygame.mixer.Sound("la.mp3"),
-    "Si3": pygame.mixer.Sound("si.mp3"),
-    "Do4": pygame.mixer.Sound("do2.mp3"),
-    "Do#3": pygame.mixer.Sound("re.mp3"),
-    "Re#3": pygame.mixer.Sound("re.mp3"),
-    "Fa#3": pygame.mixer.Sound("re.mp3"),
-    "Sol#3": pygame.mixer.Sound("re.mp3"),
-    "La#3": pygame.mixer.Sound("re.mp3"),
-}
+    # Octava 3
+    "Do3": pygame.mixer.Sound("notes/c3.mp3"),
+    "Re3": pygame.mixer.Sound("notes/d3.mp3"),
+    "Mi3": pygame.mixer.Sound("notes/e3.mp3"),
+    "Fa3": pygame.mixer.Sound("notes/f3.mp3"),
+    "Sol3": pygame.mixer.Sound("notes/g3.mp3"),
+    "La3": pygame.mixer.Sound("notes/a3.mp3"),
+    "Si3": pygame.mixer.Sound("notes/b3.mp3"),
+    
+    "Do#3": pygame.mixer.Sound("notes/c-3.mp3"),
+    "Re#3": pygame.mixer.Sound("notes/d-3.mp3"),
+    "Fa#3": pygame.mixer.Sound("notes/f-3.mp3"),
+    "Sol#3": pygame.mixer.Sound("notes/g-3.mp3"),
+    "La#3": pygame.mixer.Sound("notes/a-3.mp3"),
 
+    # Octava 4
+    "Do4": pygame.mixer.Sound("notes/c4.mp3"),
+    "Re4": pygame.mixer.Sound("notes/d4.mp3"),
+    "Mi4": pygame.mixer.Sound("notes/e4.mp3"),
+    "Fa4": pygame.mixer.Sound("notes/f4.mp3"),
+    "Sol4": pygame.mixer.Sound("notes/g4.mp3"),
+    "La4": pygame.mixer.Sound("notes/a4.mp3"),
+    "Si4": pygame.mixer.Sound("notes/b4.mp3"),
+    
+    "Do#4": pygame.mixer.Sound("notes/c-4.mp3"),
+    "Re#4": pygame.mixer.Sound("notes/d-4.mp3"),
+    "Fa#4": pygame.mixer.Sound("notes/f-4.mp3"),
+    "Sol#4": pygame.mixer.Sound("notes/g-4.mp3"),
+    "La#4": pygame.mixer.Sound("notes/a-4.mp3"),
+
+    # Octava 5
+    "Do5": pygame.mixer.Sound("notes/c5.mp3"),
+    "Re5": pygame.mixer.Sound("notes/d5.mp3"),
+    "Mi5": pygame.mixer.Sound("notes/e5.mp3"),
+    "Fa5": pygame.mixer.Sound("notes/f5.mp3"),
+    "Sol5": pygame.mixer.Sound("notes/g5.mp3"),
+    "La5": pygame.mixer.Sound("notes/a5.mp3"),
+    "Si5": pygame.mixer.Sound("notes/b5.mp3"),
+    
+    "Do#5": pygame.mixer.Sound("notes/c-5.mp3"),
+    "Re#5": pygame.mixer.Sound("notes/d-5.mp3"),
+    "Fa#5": pygame.mixer.Sound("notes/f-5.mp3"),
+    "Sol#5": pygame.mixer.Sound("notes/g-5.mp3"),
+    "La#5": pygame.mixer.Sound("notes/a-5.mp3"),
+
+    "Do#6": pygame.mixer.Sound("notes/c6.mp3"),
+}
 # Cargar la imagen del piano
 piano_img = cv2.imread("piano.png")
 
@@ -69,47 +77,51 @@ screen_height = cv2.getWindowImageRect("Piano Virtual")[3]
 cv2.moveWindow("Piano Virtual", (screen_width - 1280) // 2, (screen_height - 720) // 2)
 
 # Definir posiciones de teclas en la imagen (ajusta según tu imagen)
+# Definir posiciones de teclas en la imagen (ajusta según tu imagen)
 teclas_blancas = {
-    "Do":  (0, 250, 100, 470),
-    "Re":  (100, 250, 200, 470),
-    "Mi":  (200, 250, 300, 470),
-    "Fa":  (300, 250, 400, 470),
-    "Sol": (400, 250, 500, 470),
-    "La":  (500, 250, 600, 470),
-    "Si":  (600, 250, 700, 470),
-    "Do2": (700, 250, 800, 470),
-    "Re2": (800, 250, 900, 470),
-    "Mi2": (900, 250, 1000, 470),
-    "Fa2": (1000, 250, 1100, 470),
-    "Sol2": (1100, 250, 1200, 470),
-    "La2": (1200, 250, 1300, 470),
-    "Si2": (1300, 250, 1400, 470),
-    "Do3": (1400, 250, 1500, 470),
-    "Re3": (1500, 250, 1600, 470),
-    "Mi3": (1600, 250, 1700, 470),
-    "Fa3": (1700, 250, 1800, 470),
-    "Sol3": (1800, 250, 1900, 470),
-    "La3": (1900, 250, 2000, 470),
-    "Si3": (2000, 250, 2100, 470),
-    "Do4": (2100, 250, 2200, 470),
+    "Do3":  (0, 170, 100, 390),  # 250 - 30 y 470 - 30
+    "Re3":  (100, 170, 200, 390),
+    "Mi3":  (200, 170, 300, 390),
+    "Fa3":  (300, 170, 400, 390),
+    "Sol3": (400, 170, 500, 390),
+    "La3":  (500, 170, 600, 390),
+    "Si3":  (600, 170, 700, 390),
+
+    "Do4": (700, 170, 800, 390),
+    "Re4": (800, 170, 900, 390),
+    "Mi4": (900, 170, 1000, 390),
+    "Fa4": (1000, 170, 1100, 390),
+    "Sol4": (1100, 170, 1200, 390),
+    "La4": (1200, 170, 1300, 390),
+    "Si4": (1300, 170, 1400, 390),
+
+    "Do5": (1400, 170, 1500, 390),
+    "Re5": (1500, 170, 1600, 390),
+    "Mi5": (1600, 170, 1700, 390),
+    "Fa5": (1700, 170, 1800, 390),
+    "Sol5": (1800, 170, 1900, 390),
+    "La5": (1900, 170, 2000, 390),
+    "Si5": (2000, 170, 2100, 390),
 }
 
 teclas_negras = {
-    "Do#": (75, 250, 125, 350),
-    "Re#": (175, 250, 225, 350),
-    "Fa#": (375, 250, 425, 350),
-    "Sol#": (475, 250, 525, 350),
-    "La#": (575, 250, 625, 350),
-    "Do#2": (875, 250, 925, 350),
-    "Re#2": (975, 250, 1025, 350),
-    "Fa#2": (1175, 250, 1225, 350),
-    "Sol#2": (1275, 250, 1325, 350),
-    "La#2": (1375, 250, 1425, 350),
-    "Do#3": (1575, 250, 1625, 350),
-    "Re#3": (1675, 250, 1725, 350),
-    "Fa#3": (1875, 250, 1925, 350),
-    "Sol#3": (1975, 250, 2025, 350),
-    "La#3": (2075, 250, 2125, 350),
+    "Do#3": (75, 170, 125, 270),  # 250 - 30 y 350 - 30
+    "Re#3": (175, 170, 225, 270),
+    "Fa#3": (375, 170, 425, 270),
+    "Sol#3": (475, 170, 525, 270),
+    "La#3": (575, 170, 625, 270),
+
+    "Do#4": (775, 170, 825, 270),
+    "Re#4": (875, 170, 925, 270),
+    "Fa#4": (1075, 170, 1125, 270),
+    "Sol#4": (1175, 170, 1225, 270),
+    "La#4": (1275, 170, 1325, 270),
+    
+    "Do#5": (1475, 170, 1525, 270),
+    "Re#5": (1575, 170, 1625, 270),
+    "Fa#5": (1775, 170, 1825, 270),
+    "Sol#5": (1875, 170, 1925, 270),
+    "La#5": (1975, 170, 2025, 270),
 }
 
 tecla_anterior = None  # Para evitar que suene muchas veces una misma tecla
@@ -119,7 +131,7 @@ tecla_anterior_izq = None  # Para evitar que suene muchas veces una misma tecla 
 tecla_anterior_der = None  # Para evitar que suene muchas veces una misma tecla para la mano derecha
 
 # Definir la canción (ejemplo: "Twinkle Twinkle Little Star")
-cancion = ["Do", "Do", "Sol", "Sol", "La", "La", "Sol", "Fa", "Fa", "Mi", "Mi", "Re", "Re", "Do"]
+cancion = ["Do4", "Do4", "Sol4", "Sol4", "La4", "La4", "Sol4", "Fa4", "Fa4", "Mi4", "Mi4", "Re4", "Re4", "Do4"]
 nombre_cancion = "Twinkle Twinkle Little Star"
 
 # Inicializar el índice de la canción y el marcador
@@ -216,16 +228,12 @@ while cap.isOpened():
         if result.multi_hand_landmarks:
             for hand_landmarks in result.multi_hand_landmarks:
                 # Obtener coordenadas del dedo índice (índice 8 en Mediapipe)
-                x_tip, y_tip = int(hand_landmarks.landmark[8].x * piano_width), int(hand_landmarks.landmark[8].y * 480)
-                x_base, y_base = int(hand_landmarks.landmark[7].x * piano_width), int(hand_landmarks.landmark[7].y * 480)
-
-                # Calcular la dirección del dedo
-                direction_x = x_tip - x_base
-                direction_y = y_tip - y_base
-
-                # Ajustar la posición del círculo para que esté en la punta del dedo
-                x = x_tip + direction_x // 2 
-                y = y_tip + direction_y // 2 
+                x_tip = int(hand_landmarks.landmark[8].x * piano_width)
+                y_tip = int(hand_landmarks.landmark[8].y * 480)
+            
+                # Usar directamente la punta del dedo para el círculo
+                x = x_tip
+                y = y_tip
 
                 # Dibujar un círculo en la punta del dedo índice
                 cv2.circle(frame, (x, y), 10, (0, 255, 0), -1)
