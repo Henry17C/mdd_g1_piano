@@ -20,13 +20,37 @@ notas = {
     "Fa#": pygame.mixer.Sound("re.mp3"),
     "Sol#": pygame.mixer.Sound("re.mp3"),
     "La#": pygame.mixer.Sound("re.mp3"),
+    "Re2": pygame.mixer.Sound("re.mp3"),
+    "Mi2": pygame.mixer.Sound("mi.mp3"),
+    "Fa2": pygame.mixer.Sound("fa.mp3"),
+    "Sol2": pygame.mixer.Sound("sol.mp3"),
+    "La2": pygame.mixer.Sound("la.mp3"),
+    "Si2": pygame.mixer.Sound("si.mp3"),
+    "Do3": pygame.mixer.Sound("do2.mp3"),
+    "Do#2": pygame.mixer.Sound("re.mp3"),
+    "Re#2": pygame.mixer.Sound("re.mp3"),
+    "Fa#2": pygame.mixer.Sound("re.mp3"),
+    "Sol#2": pygame.mixer.Sound("re.mp3"),
+    "La#2": pygame.mixer.Sound("re.mp3"),
+    "Re3": pygame.mixer.Sound("re.mp3"),
+    "Mi3": pygame.mixer.Sound("mi.mp3"),
+    "Fa3": pygame.mixer.Sound("fa.mp3"),
+    "Sol3": pygame.mixer.Sound("sol.mp3"),
+    "La3": pygame.mixer.Sound("la.mp3"),
+    "Si3": pygame.mixer.Sound("si.mp3"),
+    "Do4": pygame.mixer.Sound("do2.mp3"),
+    "Do#3": pygame.mixer.Sound("re.mp3"),
+    "Re#3": pygame.mixer.Sound("re.mp3"),
+    "Fa#3": pygame.mixer.Sound("re.mp3"),
+    "Sol#3": pygame.mixer.Sound("re.mp3"),
+    "La#3": pygame.mixer.Sound("re.mp3"),
 }
 
 # Cargar la imagen del piano
 piano_img = cv2.imread("piano.png")
 
 # Ajustar el tamaño de la imagen del piano
-piano_width, piano_height = 800, 200
+piano_width, piano_height = 2200, 470  # Ajustar el tamaño para que se muestren todas las teclas
 piano_img = cv2.resize(piano_img, (piano_width, piano_height))
 
 # Inicializar Mediapipe para detección de manos
@@ -54,6 +78,20 @@ teclas_blancas = {
     "La":  (500, 250, 600, 470),
     "Si":  (600, 250, 700, 470),
     "Do2": (700, 250, 800, 470),
+    "Re2": (800, 250, 900, 470),
+    "Mi2": (900, 250, 1000, 470),
+    "Fa2": (1000, 250, 1100, 470),
+    "Sol2": (1100, 250, 1200, 470),
+    "La2": (1200, 250, 1300, 470),
+    "Si2": (1300, 250, 1400, 470),
+    "Do3": (1400, 250, 1500, 470),
+    "Re3": (1500, 250, 1600, 470),
+    "Mi3": (1600, 250, 1700, 470),
+    "Fa3": (1700, 250, 1800, 470),
+    "Sol3": (1800, 250, 1900, 470),
+    "La3": (1900, 250, 2000, 470),
+    "Si3": (2000, 250, 2100, 470),
+    "Do4": (2100, 250, 2200, 470),
 }
 
 teclas_negras = {
@@ -62,6 +100,16 @@ teclas_negras = {
     "Fa#": (375, 250, 425, 350),
     "Sol#": (475, 250, 525, 350),
     "La#": (575, 250, 625, 350),
+    "Do#2": (875, 250, 925, 350),
+    "Re#2": (975, 250, 1025, 350),
+    "Fa#2": (1175, 250, 1225, 350),
+    "Sol#2": (1275, 250, 1325, 350),
+    "La#2": (1375, 250, 1425, 350),
+    "Do#3": (1575, 250, 1625, 350),
+    "Re#3": (1675, 250, 1725, 350),
+    "Fa#3": (1875, 250, 1925, 350),
+    "Sol#3": (1975, 250, 2025, 350),
+    "La#3": (2075, 250, 2125, 350),
 }
 
 tecla_anterior = None  # Para evitar que suene muchas veces una misma tecla
@@ -80,7 +128,7 @@ while cap.isOpened():
 
     # Obtener tamaño del video
     frame_height, frame_width, _ = frame.shape
-    frame = cv2.resize(frame, (piano_width, 480))
+    frame = cv2.resize(frame, (piano_width, 720))  # Ajustar el tamaño del frame para que se muestren todas las teclas
 
     # Convertir la imagen a RGB para Mediapipe
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
