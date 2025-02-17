@@ -126,6 +126,10 @@ nombre_cancion = "Twinkle Twinkle Little Star"
 indice_cancion = 0
 score = 0
 
+# Variables para el menú
+menu_activo = True
+boton_jugar = (540, 300, 740, 400)  # Coordenadas del botón de jugar
+
 while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
@@ -142,94 +146,124 @@ while cap.isOpened():
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     result = hands.process(rgb_frame)
 
-    # Dibujar el marcador en la parte superior
-    cv2.putText(frame, f"Puntaje: {score}", (10, 30), cv2.FONT_ITALIC, 1, (255, 255, 255), 2)
-    cv2.putText(frame, f"Cancion: {nombre_cancion}", (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+    if menu_activo:
+        # Dibujar el menú
+        cv2.putText(frame, "Proyecto Piano Virtual", (frame_width // 2 - 300, 150), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 3)
+        cv2.rectangle(frame, (frame_width // 2 - 100, 300), (frame_width // 2 + 100, 400), (0, 255, 0), -1)
+        cv2.putText(frame, "Jugar", (frame_width // 2 - 50, 370), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 3)
 
-    # Dibujar las teclas blancas del piano con sombra y bordes curvados
-    for nota, (x1, y1, x2, y2) in teclas_blancas.items():
-        shadow_color = (192, 192, 192)  # Gris claro para la sombra
-        border_color = (169, 169, 169)  # Plomo para el borde inferior
-        color = (255, 255, 255)  # Blanco
-        if tecla_presionada_izq == nota or tecla_presionada_der == nota:
-            color = (169, 169, 169)  # Plomo
-            shadow_color = (105, 105, 105)  # Gris oscuro para la sombra cuando se presiona
-        if nota == cancion[indice_cancion]:
-            color = (0, 255, 255)  # Amarillo para la tecla actual de la canción
-        # Dibujar sombra
-        cv2.rectangle(frame, (x1 + 5, y1 + 5), (x2 + 5, y2 + 5), shadow_color, -1)
-        # Dibujar tecla con bordes curvados
-        cv2.rectangle(frame, (x1, y1), (x2, y2), color, -1)  # Relleno
-        cv2.rectangle(frame, (x1, y2 - 10), (x2, y2), border_color, -1)  # Borde inferior curvado
-        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 0), 2)  # Borde negro
+        # Si se detectan manos
+        if result.multi_hand_landmarks:
+            for hand_landmarks in result.multi_hand_landmarks:
+                # Obtener coordenadas del dedo índice (índice 8 en Mediapipe)
+                x_tip, y_tip = int(hand_landmarks.landmark[8].x * piano_width), int(hand_landmarks.landmark[8].y * 480)
+                x_base, y_base = int(hand_landmarks.landmark[7].x * piano_width), int(hand_landmarks.landmark[7].y * 480)
 
-    # Dibujar las teclas negras del piano con sombra ajustada
-    for nota, (x1, y1, x2, y2) in teclas_negras.items():
-        shadow_color = (64, 64, 64)  # Gris oscuro para la sombra
-        color = (0, 0, 0)  # Negro
-        if tecla_presionada_izq == nota or tecla_presionada_der == nota:
-            color = (105, 105, 105)  # Gris oscuro
-            shadow_color = (32, 32, 32)  # Más oscuro para la sombra cuando se presiona
-        if nota == cancion[indice_cancion]:
-            color = (0, 255, 255)  # Amarillo para la tecla actual de la canción
-        # Dibujar sombra desde el inicio del piano
-        cv2.rectangle(frame, (x1 + 5, 250), (x2 + 5, y2 + 5), shadow_color, -1)
-        # Dibujar tecla
-        cv2.rectangle(frame, (x1, y1), (x2, y2), color, -1)  # Relleno
-        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 0), 2)  # Borde negro
+                # Calcular la dirección del dedo
+                direction_x = x_tip - x_base
+                direction_y = y_tip - y_base
 
-    # Si se detectan manos
-    if result.multi_hand_landmarks:
-        for hand_landmarks in result.multi_hand_landmarks:
-            # Obtener coordenadas del dedo índice (índice 8 en Mediapipe)
-            x_tip, y_tip = int(hand_landmarks.landmark[8].x * piano_width), int(hand_landmarks.landmark[8].y * 480)
-            x_base, y_base = int(hand_landmarks.landmark[7].x * piano_width), int(hand_landmarks.landmark[7].y * 480)
+                # Ajustar la posición del círculo para que esté en la punta del dedo
+                x = x_tip + direction_x // 2 
+                y = y_tip + direction_y // 2 + 60
 
-            # Calcular la dirección del dedo
-            direction_x = x_tip - x_base
-            direction_y = y_tip - y_base
+                # Dibujar un círculo en la punta del dedo índice
+                cv2.circle(frame, (x, y), 10, (0, 255, 0), -1)
 
-            # Ajustar la posición del círculo para que esté en la punta del dedo
-            x = x_tip + direction_x // 2 
-            y = y_tip + direction_y // 2 
+                # Verificar si el dedo toca el botón de jugar
+                if frame_width // 2 - 100 < x < frame_width // 2 + 100 and 300 < y < 400:
+                    menu_activo = False
+                    break
 
-            # Dibujar un círculo en la punta del dedo índice
-            cv2.circle(frame, (x, y), 10, (0, 255, 0), -1)
-
-            # Verificar si el dedo toca alguna tecla
-            if hand_landmarks.landmark[8].x < 0.5:  # Mano izquierda
-                tecla_presionada_izq = None
-                for nota, (x1, y1, x2, y2) in {**teclas_blancas, **teclas_negras}.items():
-                    if x1 < x < x2 and y1 < y < y2:
-                        tecla_presionada_izq = nota
-                if tecla_presionada_izq and tecla_presionada_izq != tecla_anterior_izq:
-                    notas[tecla_presionada_izq].play()
-                    if tecla_presionada_izq == cancion[indice_cancion]:
-                        score += 1
-                        indice_cancion = (indice_cancion + 1) % len(cancion)
-                    tecla_anterior_izq = tecla_presionada_izq
-            else:  # Mano derecha
-                tecla_presionada_der = None
-                for nota, (x1, y1, x2, y2) in {**teclas_blancas, **teclas_negras}.items():
-                    if x1 < x < x2 and y1 < y < y2:
-                        tecla_presionada_der = nota
-                if tecla_presionada_der and tecla_presionada_der != tecla_anterior_der:
-                    notas[tecla_presionada_der].play()
-                    if tecla_presionada_der == cancion[indice_cancion]:
-                        score += 1
-                        indice_cancion = (indice_cancion + 1) % len(cancion)
-                    tecla_anterior_der = tecla_presionada_der
-
-            # Dibujar los puntos de la mano
-            mp_draw.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
     else:
-        tecla_presionada_izq = None  # Resetear si no se detectan manos
-        tecla_presionada_der = None  # Resetear si no se detectan manos
+        # Dibujar el marcador en la parte superior
+        cv2.putText(frame, f"Puntaje: {score}", (10, 30), cv2.FONT_ITALIC, 1, (255, 255, 255), 2)
+        cv2.putText(frame, f"Cancion: {nombre_cancion}", (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 
-    # Resetear tecla_anterior si ninguna tecla está siendo presionada
-    if tecla_presionada_izq is None and tecla_presionada_der is None:
-        tecla_anterior_izq = None
-        tecla_anterior_der = None
+        # Dibujar las teclas blancas del piano con sombra y bordes curvados
+        for nota, (x1, y1, x2, y2) in teclas_blancas.items():
+            shadow_color = (192, 192, 192)  # Gris claro para la sombra
+            border_color = (169, 169, 169)  # Plomo para el borde inferior
+            color = (255, 255, 255)  # Blanco
+            if tecla_presionada_izq == nota or tecla_presionada_der == nota:
+                color = (169, 169, 169)  # Plomo
+                shadow_color = (105, 105, 105)  # Gris oscuro para la sombra cuando se presiona
+            if nota == cancion[indice_cancion]:
+                color = (0, 255, 255)  # Amarillo para la tecla actual de la canción
+            # Dibujar sombra
+            cv2.rectangle(frame, (x1 + 5, y1 + 5), (x2 + 5, y2 + 5), shadow_color, -1)
+            # Dibujar tecla con bordes curvados
+            cv2.rectangle(frame, (x1, y1), (x2, y2), color, -1)  # Relleno
+            cv2.rectangle(frame, (x1, y2 - 10), (x2, y2), border_color, -1)  # Borde inferior curvado
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 0), 2)  # Borde negro
+
+        # Dibujar las teclas negras del piano con sombra ajustada
+        for nota, (x1, y1, x2, y2) in teclas_negras.items():
+            shadow_color = (64, 64, 64)  # Gris oscuro para la sombra
+            color = (0, 0, 0)  # Negro
+            if tecla_presionada_izq == nota or tecla_presionada_der == nota:
+                color = (105, 105, 105)  # Gris oscuro
+                shadow_color = (32, 32, 32)  # Más oscuro para la sombra cuando se presiona
+            if nota == cancion[indice_cancion]:
+                color = (0, 255, 255)  # Amarillo para la tecla actual de la canción
+            # Dibujar sombra desde el inicio del piano
+            cv2.rectangle(frame, (x1 + 5, 250), (x2 + 5, y2 + 5), shadow_color, -1)
+            # Dibujar tecla
+            cv2.rectangle(frame, (x1, y1), (x2, y2), color, -1)  # Relleno
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 0), 2)  # Borde negro
+
+        # Si se detectan manos
+        if result.multi_hand_landmarks:
+            for hand_landmarks in result.multi_hand_landmarks:
+                # Obtener coordenadas del dedo índice (índice 8 en Mediapipe)
+                x_tip, y_tip = int(hand_landmarks.landmark[8].x * piano_width), int(hand_landmarks.landmark[8].y * 480)
+                x_base, y_base = int(hand_landmarks.landmark[7].x * piano_width), int(hand_landmarks.landmark[7].y * 480)
+
+                # Calcular la dirección del dedo
+                direction_x = x_tip - x_base
+                direction_y = y_tip - y_base
+
+                # Ajustar la posición del círculo para que esté en la punta del dedo
+                x = x_tip + direction_x // 2 
+                y = y_tip + direction_y // 2 
+
+                # Dibujar un círculo en la punta del dedo índice
+                cv2.circle(frame, (x, y), 10, (0, 255, 0), -1)
+
+                # Verificar si el dedo toca alguna tecla
+                if hand_landmarks.landmark[8].x < 0.5:  # Mano izquierda
+                    tecla_presionada_izq = None
+                    for nota, (x1, y1, x2, y2) in {**teclas_blancas, **teclas_negras}.items():
+                        if x1 < x < x2 and y1 < y < y2:
+                            tecla_presionada_izq = nota
+                    if tecla_presionada_izq and tecla_presionada_izq != tecla_anterior_izq:
+                        notas[tecla_presionada_izq].play()
+                        if tecla_presionada_izq == cancion[indice_cancion]:
+                            score += 1
+                            indice_cancion = (indice_cancion + 1) % len(cancion)
+                        tecla_anterior_izq = tecla_presionada_izq
+                else:  # Mano derecha
+                    tecla_presionada_der = None
+                    for nota, (x1, y1, x2, y2) in {**teclas_blancas, **teclas_negras}.items():
+                        if x1 < x < x2 and y1 < y < y2:
+                            tecla_presionada_der = nota
+                    if tecla_presionada_der and tecla_presionada_der != tecla_anterior_der:
+                        notas[tecla_presionada_der].play()
+                        if tecla_presionada_der == cancion[indice_cancion]:
+                            score += 1
+                            indice_cancion = (indice_cancion + 1) % len(cancion)
+                        tecla_anterior_der = tecla_presionada_der
+
+                # Dibujar los puntos de la mano
+                mp_draw.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+        else:
+            tecla_presionada_izq = None  # Resetear si no se detectan manos
+            tecla_presionada_der = None  # Resetear si no se detectan manos
+
+        # Resetear tecla_anterior si ninguna tecla está siendo presionada
+        if tecla_presionada_izq is None and tecla_presionada_der is None:
+            tecla_anterior_izq = None
+            tecla_anterior_der = None
 
     # Mostrar la ventana en tamaño ajustado
     cv2.imshow("Piano Virtual", frame)
