@@ -118,6 +118,14 @@ tecla_presionada_der = None  # Inicializar tecla_presionada para la mano derecha
 tecla_anterior_izq = None  # Para evitar que suene muchas veces una misma tecla para la mano izquierda
 tecla_anterior_der = None  # Para evitar que suene muchas veces una misma tecla para la mano derecha
 
+# Definir la canción (ejemplo: "Twinkle Twinkle Little Star")
+cancion = ["Do", "Do", "Sol", "Sol", "La", "La", "Sol", "Fa", "Fa", "Mi", "Mi", "Re", "Re", "Do"]
+nombre_cancion = "Twinkle Twinkle Little Star"
+
+# Inicializar el índice de la canción y el marcador
+indice_cancion = 0
+score = 0
+
 while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
@@ -134,6 +142,10 @@ while cap.isOpened():
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     result = hands.process(rgb_frame)
 
+    # Dibujar el marcador en la parte superior
+    cv2.putText(frame, f"Puntaje: {score}", (10, 30), cv2.FONT_ITALIC, 1, (255, 255, 255), 2)
+    cv2.putText(frame, f"Cancion: {nombre_cancion}", (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+
     # Dibujar las teclas blancas del piano con sombra y bordes curvados
     for nota, (x1, y1, x2, y2) in teclas_blancas.items():
         shadow_color = (192, 192, 192)  # Gris claro para la sombra
@@ -142,6 +154,8 @@ while cap.isOpened():
         if tecla_presionada_izq == nota or tecla_presionada_der == nota:
             color = (169, 169, 169)  # Plomo
             shadow_color = (105, 105, 105)  # Gris oscuro para la sombra cuando se presiona
+        if nota == cancion[indice_cancion]:
+            color = (0, 255, 255)  # Amarillo para la tecla actual de la canción
         # Dibujar sombra
         cv2.rectangle(frame, (x1 + 5, y1 + 5), (x2 + 5, y2 + 5), shadow_color, -1)
         # Dibujar tecla con bordes curvados
@@ -156,6 +170,8 @@ while cap.isOpened():
         if tecla_presionada_izq == nota or tecla_presionada_der == nota:
             color = (105, 105, 105)  # Gris oscuro
             shadow_color = (32, 32, 32)  # Más oscuro para la sombra cuando se presiona
+        if nota == cancion[indice_cancion]:
+            color = (0, 255, 255)  # Amarillo para la tecla actual de la canción
         # Dibujar sombra desde el inicio del piano
         cv2.rectangle(frame, (x1 + 5, 250), (x2 + 5, y2 + 5), shadow_color, -1)
         # Dibujar tecla
@@ -166,9 +182,18 @@ while cap.isOpened():
     if result.multi_hand_landmarks:
         for hand_landmarks in result.multi_hand_landmarks:
             # Obtener coordenadas del dedo índice (índice 8 en Mediapipe)
-            x, y = int(hand_landmarks.landmark[8].x * piano_width), int(hand_landmarks.landmark[8].y * 480)
+            x_tip, y_tip = int(hand_landmarks.landmark[8].x * piano_width), int(hand_landmarks.landmark[8].y * 480)
+            x_base, y_base = int(hand_landmarks.landmark[7].x * piano_width), int(hand_landmarks.landmark[7].y * 480)
 
-            # Dibujar un círculo en el dedo índice
+            # Calcular la dirección del dedo
+            direction_x = x_tip - x_base
+            direction_y = y_tip - y_base
+
+            # Ajustar la posición del círculo para que esté en la punta del dedo
+            x = x_tip + direction_x // 2 
+            y = y_tip + direction_y // 2 
+
+            # Dibujar un círculo en la punta del dedo índice
             cv2.circle(frame, (x, y), 10, (0, 255, 0), -1)
 
             # Verificar si el dedo toca alguna tecla
@@ -179,6 +204,9 @@ while cap.isOpened():
                         tecla_presionada_izq = nota
                 if tecla_presionada_izq and tecla_presionada_izq != tecla_anterior_izq:
                     notas[tecla_presionada_izq].play()
+                    if tecla_presionada_izq == cancion[indice_cancion]:
+                        score += 1
+                        indice_cancion = (indice_cancion + 1) % len(cancion)
                     tecla_anterior_izq = tecla_presionada_izq
             else:  # Mano derecha
                 tecla_presionada_der = None
@@ -187,6 +215,9 @@ while cap.isOpened():
                         tecla_presionada_der = nota
                 if tecla_presionada_der and tecla_presionada_der != tecla_anterior_der:
                     notas[tecla_presionada_der].play()
+                    if tecla_presionada_der == cancion[indice_cancion]:
+                        score += 1
+                        indice_cancion = (indice_cancion + 1) % len(cancion)
                     tecla_anterior_der = tecla_presionada_der
 
             # Dibujar los puntos de la mano
